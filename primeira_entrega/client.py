@@ -1,4 +1,5 @@
 import socket
+from functions import *
 
 # Constantes
 SERVER_ADDR = ('localhost', 12000)  # Endereço do Servidor (IP e Porta)

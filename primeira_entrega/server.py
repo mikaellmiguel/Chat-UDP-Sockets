@@ -1,5 +1,6 @@
 import socket
 import queue
+from functions import *
 
 # Tamanaho do Buffer
 BUFFER_SIZE = 1024
