@@ -67,10 +67,19 @@ while True:
         
         # Quando o usuário quer enviar uma mensagem para os outros usuários
         else:
-           pass
-           
-           # IMPLEMENTAR A CONVERSÃO PARA TXT
-           # IMPLEMENTAR A SEGMENTAÇÃO DE ACORDO COM O BUFFER SIZE
+           # Convertendo a entrada em um arquivo TXT associado ao nome de usuário
+            caminhoTxt = converterToTxt(username, mensagem)
+            # Lendo o arquivo TXT como bytes
+            with open(caminhoTxt, 'rb') as arquivoTxt:
+
+                # FRAGMENTAÇÃO DE PACOTES
+                # Enviando o arquivo em partes (chunks) do tamanho do BUFFER_SIZE
+                while chunks:= arquivoTxt.read(BUFFER_SIZE):
+                    socketCliente.sendto(chunks, SERVER_ADDR)
+               
+
+                # Informando para o servidor que a transimissão do arquivo terminou (EOF - End of File)
+                socketCliente.sendto('<EOF>'.encode(), SERVER_ADDR)
         
     else:
         
