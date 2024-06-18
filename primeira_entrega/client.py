@@ -1,5 +1,6 @@
 import socket
 import os   # Biblioteca utilizada para remoção de arquivos TXT
+import threading
 
 from functions import *
 
@@ -9,6 +10,34 @@ BUFFER_SIZE = 1024                  # Tamanho do Buffer
 
 # Criação do SOCKET
 socketCliente = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Recepção de mensagens
+def receberMsg():
+    
+    mensagemCompleta = '' # Armazenará a mensagem completa
+
+    while True:
+        try:
+
+            mensagem, _ = socketCliente.recvfrom(BUFFER_SIZE)  # Recebendo o fragmento de mensagem
+
+            mensagem = mensagem.decode('ISO-8859-1')  # Docodificando a mensagem
+            
+            if mensagem:
+                if mensagem == "<EOF>":  # Se a mensagem for igual a flag <EOF> (fim da mensagem do usuáro)
+                    print(mensagemCompleta)  # Pritando a mensagem para o o usário
+                    mensagemCompleta = ''  # Esvaziando a variavel para armazenar outra
+                
+                else:
+                    mensagemCompleta += mensagem  # Adicionando o pedaço da mensagem a mensagem completa
+
+
+        except:
+            pass
+
+# criação da treading para recebimento de mensagens
+threadReceber = threading.Thread(target=receberMsg)
+threadReceber.start()
 
 # Armazena se o cliente está conectado a uma sala ou não
 conectado = False
