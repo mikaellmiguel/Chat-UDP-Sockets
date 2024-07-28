@@ -2,11 +2,15 @@ import socket
 import os   # Biblioteca utilizada para remoção de arquivos TXT
 import threading
 
+
+from commom import *
 from functions import *
 
 # Constantes
 SERVER_ADDR = ('localhost', 12000)  # Endereço do Servidor (IP e Porta)
-BUFFER_SIZE = 1024                  # Tamanho do Buffer
+
+seqToSend = 0
+ackToSend = 0
 
 # Criação do SOCKET
 socketCliente = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -20,24 +24,66 @@ bye                        \t Sair da sala\n""")
 
 # Recepção de mensagens
 def receberMsg():
+
+    global seqToSend, ackToSend   # Váriaveis globais que vão precisar ser usadas
     
     mensagemCompleta = '' # Armazenará a mensagem completa
 
     while True:
         try:
-
-            mensagem, _ = socketCliente.recvfrom(BUFFER_SIZE)  # Recebendo o fragmento de mensagem
-
-            mensagem = mensagem.decode('ISO-8859-1')  # Docodificando a mensagem
             
-            if mensagem:
-                if mensagem == "<EOF>":  # Se a mensagem for igual a flag <EOF> (fim da mensagem do usuáro)
-                    print(mensagemCompleta)  # Pritando a mensagem para o o usário
-                    mensagemCompleta = ''  # Esvaziando a variavel para armazenar outra
-                
-                else:
-                    mensagemCompleta += mensagem  # Adicionando o pedaço da mensagem a mensagem completa
+            pacote, _ = socketCliente.recvfrom(BUFFER_SIZE)  # Recebendo o fragmento de mensagem
 
+            print(pacote)
+
+            header = pacote[:HEADER_SIZE]
+            payload = pacote[HEADER_SIZE:]
+
+            
+            # Se o Pacote estiver Corrompido (Checksum que verifica)
+            if isCorrupt(header, payload): 
+                print("FAILED: PACOTE CORROMPIDO")
+
+            # Se o Pacote não Estiver Corrompido
+            else:
+
+                seq, ack, _ = struct.unpack("!BBH", header)  # Desempacotando o Header
+                
+                # Se não tem payload é um ACK, se for do pacote que foi enviado ( Número Sequência do Pacote enviado)
+                if not payload and ack == seqToSend:
+                    
+                    # Informando que o ACK Do pacote enviado foi recibido para parar o temporizador
+                    commom.ackRecive = True
+
+                    # Trocando o número de Sequência para o próximo pacote  
+                    seqToSend = 1 if seqToSend == 0 else 0
+
+                
+                # Se for um ACK, mas não for do pacote enviado.
+                elif not payload and ack != seqToSend:
+                    print("FALIED: ACK NUMBER INCORRETO")
+                    # NÃO ESTOU FAZENDO NADA PORQUE EVENTUALMENTE O TIMER VAI ESTOURAR E REENVIAR O PACOTE
+
+                # Se for algum contéudo
+                else:
+                    payload = payload.decode("ISO-8859-1")  # Decodificando o payload
+
+                    # Enviando o ACK confirmando o Recebimento
+                    ack = makeAck(seqToSend, ackToSend)
+                    socketCliente.sendto(ack, SERVER_ADDR)
+                    
+                    # Atualizando qual é o ACK que deve ser enviado no próximo pacote
+                    ackToSend = 1 if ackToSend == 0 else 0
+
+                    # Se a mensagem for a tag <EOF>, ou seja, é o fim da mensagem
+                    if payload == "<EOF>":
+                        # Pritando a mensagem completa
+                        print(mensagemCompleta)
+                        mensagemCompleta = ''  # Esvaziando o buffer de mensagem para a próxima mensagem
+
+                    else:
+                        # Armazenando os pedaços de mensagens até que a mensagem chegue por completo para ser exibida
+                        mensagemCompleta += payload
 
         except:
             pass
