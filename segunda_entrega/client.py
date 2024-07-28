@@ -109,7 +109,10 @@ while True:
             conectado = False  # alterando a váriavel que indica se o cliente está conectado
 
             # Envia uma mensagem para o servidor informando que o cliente está saindo da sala
-            socketCliente.sendto(f"LOGOUT:{username}".encode(), SERVER_ADDR)
+            enviarMsg(f'LOGOUT:{username}'.encode("ISO-8859-1"), socketCliente, SERVER_ADDR, seqToSend, ackToSend)
+            enviarMsg('<EOF>'.encode("ISO-8859-1"), socketCliente, SERVER_ADDR, seqToSend, ackToSend)
+            
+            #socketCliente.sendto(f"LOGOUT:{username}".encode(), SERVER_ADDR)
             
             try:
                 os.remove(f'./primeira_entrega/dados/client/{username}.txt')  # Apagando o TXT associado ao usuário que saiu
@@ -132,12 +135,12 @@ bye                        \t Sair da sala\n""")
 
                 # FRAGMENTAÇÃO DE PACOTES
                 # Enviando o arquivo em partes (chunks) do tamanho do BUFFER_SIZE
-                while chunks:= arquivoTxt.read(BUFFER_SIZE):
-                    socketCliente.sendto(chunks, SERVER_ADDR)
+                while chunks:= arquivoTxt.read(PAYLOAD_SIZE):
+                    enviarMsg(chunks, socketCliente, SERVER_ADDR, seqToSend, ackToSend)
                
 
                 # Informando para o servidor que a transimissão do arquivo terminou (EOF - End of File)
-                socketCliente.sendto('<EOF>'.encode(), SERVER_ADDR)
+                enviarMsg('<EOF>'.encode("ISO-8859-1"), socketCliente, SERVER_ADDR, seqToSend, ackToSend)
         
     else:
         
@@ -147,7 +150,9 @@ bye                        \t Sair da sala\n""")
             conectado = True
 
             # Enviando uma flag para o servidor informando a entrada do usuário com seu username
-            socketCliente.sendto(f"LOGIN:{username}".encode(), SERVER_ADDR)
+            enviarMsg(f"LOGIN:{username}".encode("ISO-8859-1"), socketCliente, SERVER_ADDR, seqToSend, ackToSend)
+            enviarMsg("<EOF>".encode("ISO-8859-1"), socketCliente, SERVER_ADDR, seqToSend, ackToSend)
+
 
         # Quando o usuário quer sair sem estar conectado
         elif mensagem == 'bye' and conectado == False:
