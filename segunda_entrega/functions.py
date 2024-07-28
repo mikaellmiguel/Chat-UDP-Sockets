@@ -1,5 +1,8 @@
 import crcmod
 import struct
+import commom
+import socket
+import time
 
 def converterToTxt(username, texto, isServer = False):
 
@@ -54,6 +57,33 @@ def isCorrupt(header:bytes, payload:bytes):
     return checksumChecked != checksum
 
 
+def enviarMsg(msg:bytes, sock:socket.socket, addr:tuple, seq:int, ack:int):
+
+    # Criando o Pacote para envio
+    pacote = criarPacote(msg, seq, ack)
+
+    # Armazenando o tempo no qual o pacote será enviado
+    timeLastChunk = time.time()
+
+    # Enviando o pacote
+    sock.sendto(pacote, addr)
+
+    # Enquanto não receber um ACK
+    while not commom.ackRecive:
+
+        # Caso passe do tempo definido para Timeout
+        if timeLastChunk + commom.TIMEOUT < time.time():
+            # Atualiza o tempo de envio do ultimo Pacote
+            timeLastChunk = time.time()
+            print("TIMER: TEMPO ESTOURADO - REENVIO")
+
+            # Reenvia o mesmo pacote até chegar a confirmação
+            sock.sendto(pacote, addr)
+
+    # Zerando o ACK para a próximo envio
+    commom.ackRecive = False
+
 def makeAck(seq, ack):
     # Cria um pacote sem mensagem (S/payload) com o ACK do pacote confirmado
     return criarPacote(''.encode("ISO-8859-1"), seq, ack)
+
