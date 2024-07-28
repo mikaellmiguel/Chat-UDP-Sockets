@@ -52,3 +52,8 @@ def isCorrupt(header:bytes, payload:bytes):
     checksumChecked = calcularChecksum(struct.pack('!BB', seq, ack)+payload)
 
     return checksumChecked != checksum
+
+
+def makeAck(seq, ack):
+    # Cria um pacote sem mensagem (S/payload) com o ACK do pacote confirmado
+    return criarPacote(''.encode("ISO-8859-1"), seq, ack)
