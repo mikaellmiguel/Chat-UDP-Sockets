@@ -43,3 +43,12 @@ def criarPacote(msg:bytes, seq:int, ack:int):
     pacote = header+payload
 
     return pacote  # Retornando o pacote já pronto para envio
+
+
+def isCorrupt(header:bytes, payload:bytes):
+
+    seq, ack, checksum = struct.unpack('!BBH', header)
+
+    checksumChecked = calcularChecksum(struct.pack('!BB', seq, ack)+payload)
+
+    return checksumChecked != checksum
