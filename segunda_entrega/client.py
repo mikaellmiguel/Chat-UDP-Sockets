@@ -34,7 +34,7 @@ def receberMsg():
             
             pacote, _ = socketCliente.recvfrom(BUFFER_SIZE)  # Recebendo o fragmento de mensagem
 
-            print(pacote)
+            #print(pacote)
 
             header = pacote[:HEADER_SIZE]
             payload = pacote[HEADER_SIZE:]
@@ -64,6 +64,12 @@ def receberMsg():
                     print("FALIED: ACK NUMBER INCORRETO")
                     # NÃO ESTOU FAZENDO NADA PORQUE EVENTUALMENTE O TIMER VAI ESTOURAR E REENVIAR O PACOTE
 
+                # Se o número de sequência do pacote for diferente do ack a ser enviado (Do seq number esperado) enviar um ACK (Possível ACK corrompido)
+
+                elif seq != ackToSend:
+
+                    socketCliente.sendto(makeAck(seqToSend, seq), SERVER_ADDR)  # Ignorar o pacote porque ele é uma retransmissão
+                
                 # Se for algum contéudo
                 else:
                     payload = payload.decode("ISO-8859-1")  # Decodificando o payload
@@ -112,10 +118,17 @@ while True:
             enviarMsg(f'LOGOUT:{username}'.encode("ISO-8859-1"), socketCliente, SERVER_ADDR, seqToSend, ackToSend)
             enviarMsg('<EOF>'.encode("ISO-8859-1"), socketCliente, SERVER_ADDR, seqToSend, ackToSend)
             
+            # Restaurando as váriaveis ao estado inicial (Caso queira se conectar novamente ao server)
+
+            seqToSend = 0
+
+            ackToSend =0
+
             #socketCliente.sendto(f"LOGOUT:{username}".encode(), SERVER_ADDR)
             
+            
             try:
-                os.remove(f'./primeira_entrega/dados/client/{username}.txt')  # Apagando o TXT associado ao usuário que saiu
+                os.remove(f'./segunda_entrega/dados/client/{username}.txt')  # Apagando o TXT associado ao usuário que saiu
            
             except:  # Caso o usuário e entre na sala e saia sem mandar mensagens (Não existirá arquivo txt).
                 pass
