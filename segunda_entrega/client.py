@@ -9,11 +9,11 @@ from functions import *
 # Constantes
 SERVER_ADDR = ('localhost', 12000)  # Endereço do Servidor (IP e Porta)
 
-seqToSend = 0
-ackToSend = 0
-
 # Criação do SOCKET
 socketCliente = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+seqToSend = 0  # Número de sequencia a ser enviado
+ackToSend = 0  # Ack a ser enviado (Número de sequência esperado no recebimento)
 
 
 # Pritando os comandos que o usuário pode realizar
@@ -61,14 +61,12 @@ def receberMsg():
                 
                 # Se for um ACK, mas não for do pacote enviado.
                 elif not payload and ack != seqToSend:
-                    print("FALIED: ACK NUMBER INCORRETO")
-                    # NÃO ESTOU FAZENDO NADA PORQUE EVENTUALMENTE O TIMER VAI ESTOURAR E REENVIAR O PACOTE
+                    pass 
 
                 # Se o número de sequência do pacote for diferente do ack a ser enviado (Do seq number esperado) enviar um ACK (Possível ACK corrompido)
 
                 elif seq != ackToSend:
-
-                    socketCliente.sendto(makeAck(seqToSend, seq), SERVER_ADDR)  # Ignorar o pacote porque ele é uma retransmissão
+                    socketCliente.sendto(makeAck(seqToSend, seq), SERVER_ADDR)  # Enviar o ACK novamente
                 
                 # Se for algum contéudo
                 else:
@@ -93,6 +91,7 @@ def receberMsg():
 
         except:
             pass
+
 
 # criação da treading para recebimento de mensagens
 threadReceber = threading.Thread(target=receberMsg)

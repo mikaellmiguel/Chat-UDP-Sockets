@@ -78,7 +78,7 @@ def receberMsg():
                     caminhoTxt = converterToTxt(clientes[clientAddr], fullMensage, isServer=True)
                     
                     # Pritando que a mensagem completa foi recebida
-                    print(f"INFO: MENSAGEM COMPLETA RECEBIDA DE {clientAddr} SALVO EM: {caminhoTxt}\n")
+                    print(f"INFO: MENSAGEM COMPLETA RECEBIDA DE {clientAddr} SALVO EM: {caminhoTxt}")
                     filaMsg.put((caminhoTxt, clientAddr))
                     
                     # Esvaziando o buffer para receber uma nova mensagem
@@ -106,10 +106,9 @@ def receberMsg():
                     # Trocando o próximo número de sequência a ser enviado
                     clientesSeqAck[clientAddr][0] = 1 if clientesSeqAck[clientAddr][0] == 0 else 0
 
-                # Se for um ack para um número de sequência diferente do esperado
+                # Se for um ack para um número de sequência diferente do pacote que foi enviado
                 elif not payload and ack != clientesSeqAck[clientAddr][0]:
-                    print(f"FALIED: ACK NUMBER INCORRETO ({ack})")
-                    # NÃO ESTOU FAZENDO NADA PORQUE EVENTUALMENTE O TIMER VAI ESTOURAR E REENVIAR O PACOTE
+                    pass  # Ignorar é um ack de um pacote reenviado  
 
 
 
