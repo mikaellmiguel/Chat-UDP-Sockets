@@ -103,11 +103,11 @@ A implementação do RDT 3.0 nesse projeto é baseada no mecanismo de "Stop and 
 ### Slides - Ações do Transmissor e Receptor
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/25291498-eee1-4ef0-b6d5-1df3b9f7f4aa"  />
+<img src="https://github.com/user-attachments/assets/79b0ad1e-87bb-4772-a154-8892ca788916"/>
 </div>
+
 <div align="center">
-<img src="https://github.com/user-attachments/assets/79b0ad1e-87bb-4772-a154-8892ca788916
-"/>
+<img src="https://github.com/user-attachments/assets/25291498-eee1-4ef0-b6d5-1df3b9f7f4aa"/>
 </div>
 
 ### Funcionameto Prático
